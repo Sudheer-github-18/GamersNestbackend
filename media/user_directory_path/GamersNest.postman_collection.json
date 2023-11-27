@@ -1,0 +1,372 @@
+{
+	"info": {
+		"_postman_id": "93410897-545d-4de6-805b-463f1c9cd9c0",
+		"name": "GamersNest",
+		"description": "GamersNest API Documenttion :\n\nThese are the api which are made already have to add more api once i get the ui roadmap",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16204670"
+	},
+	"item": [
+		{
+			"name": "UserAuths",
+			"item": [
+				{
+					"name": "signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone_number\": \"8926103900\",\r\n    \"password1\": \"Cts@5796\",\r\n    \"password2\": \"Cts@5796\",\r\n    \"email\": \"xxxx@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/user/signup/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"user",
+								"signup",
+								""
+							]
+						},
+						"description": "**Signup:**\n\n- **Method:** POST\n- **Endpoint:** `/user/signup/`\n- **Response:**\n    \n\n``` json\n{ \"detail\": \"User registered successfully.\"}\n{ \"error\": \"Invalid data. Please check the provided information.\"}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "verify_otp",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"otp\": \"1300\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/user/48/verify_otp/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"user",
+								"48",
+								"verify_otp",
+								""
+							]
+						},
+						"description": "**Verify OTP:**\n\n- **Method:** PATCH\n- **Endpoint:**/user/id/verify_otp\n- **Description:** Verifies the user's OTP for account activation.\n- **Response:**\n    \n\n``` json\n{ \"detail\": \"Successfully verified the user.\"}\n{ \"error\": \"User active or Please enter the correct OTP.\"}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/user/logout/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"user",
+								"logout",
+								""
+							]
+						},
+						"description": "**Logout:**\n\n- **Method:** POST\n- **Endpoint:** `/user/logout/`\n- **Description:** Allows users to log out\n- **Response:**\n    \n\n``` json\n{ \"detail\": \"Successfully logged out\"}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phone_number\": \"8926103900\",\r\n    \"password\": \"Cts@5796\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/user/login/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"user",
+								"login",
+								""
+							]
+						},
+						"description": "**Login:**\n\n- **Method:** POST\n- **Endpoint:** `/user/login/`\n- **Description:** Allows users to log in by providing login credentials.\n- **Response:**\n    \n\n``` json\n {\n    \"phone_number\": \"8926103900\",\n    \"password\": \"Cts@5796\",\n    \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NzE4NzMzLCJpYXQiOjE2OTk3MTUxMzMsImp0aSI6Ijc2MmNiNTEwNDRmZDQ5ZWM4YWQ2ZjBkZmVhZThjMDA1IiwidXNlcl9pZCI6NDh9.43XjVYhVcDlVm9gCpKKFEvbcRvwaI7hHhwtHXcm0W-M\"\n}\n{ \"error\": \"Invalid credentials. Please try again.\"}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "edit_profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NzIwMjQyLCJpYXQiOjE2OTk3MTY2NDIsImp0aSI6IjM5MWVlMDg0ZTNkNTRiYjM5NzAzMTUyNmVlZTgwY2YxIiwidXNlcl9pZCI6NDl9.WTx9u6t-NW8MZEtT_21w1arq7kzCRjtTwDewB0syhnY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"games\": \"csgo\",\r\n    \"full_name\": \"TEST USER\"\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/user/edit_profile/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"user",
+								"edit_profile",
+								""
+							]
+						},
+						"description": "**Edit Profile:**\n\n- **Method:** PUT\n- **Endpoint:** `/user/edit_profile/`\n    \n- **Description:** Allows users to edit their profile. need AUTHENTICATION of Type Bearer Token JWT\n    \n\n**Editable Fields :-**\n\n**'image', 'full_name', 'games'**"
+					},
+					"response": []
+				},
+				{
+					"name": "suggest_profiles",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NzIwMjQyLCJpYXQiOjE2OTk3MTY2NDIsImp0aSI6IjM5MWVlMDg0ZTNkNTRiYjM5NzAzMTUyNmVlZTgwY2YxIiwidXNlcl9pZCI6NDl9.WTx9u6t-NW8MZEtT_21w1arq7kzCRjtTwDewB0syhnY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/user/suggest_profiles/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"user",
+								"suggest_profiles",
+								""
+							]
+						},
+						"description": "**Suggest Profiles:**\n\n- **Method:** GET\n- **Endpoint:** `/user/suggest_profiles/`\n- **Description:** Provides suggestions for user profiles based on location and games.\n    \n\n## Response\n\n``` json\n    {\n        \"image\": \"/media/user_25/25.jpg\",\n        \"full_name\": \"sudheer\",\n        \"phone_number\": \"8917228221\",\n        \"friends\": [40, 43],\n        \"blocked\": [],\n        \"games\": \"valorant\"\n    },\n    {\n        \"image\": \"/media/user_40/40_lI6bUw3.jpeg\",\n        \"full_name\": \"behenchod\",\n        \"phone_number\": \"0000000000\",\n        \"friends\": [25],\n        \"blocked\": [],\n        \"games\": \"valorant\"\n    },\n    {\n        \"image\": \"/media/user_42/42_pjc5wUM.jpeg\",\n        \"full_name\": \"randika choda\",\n        \"phone_number\": \"0000000001\",\n        \"friends\": [],\n        \"blocked\": [],\n        \"games\": \"valorant\"\n    }\n\n ```"
+					},
+					"response": []
+				}
+			],
+			"description": "USER AUTHENTICATION:\n\n- signup\n    \n- verify otp\n    \n- suggest profiles\n    \n- edit_profile\n    \n- logout\n    \n- login"
+		},
+		{
+			"name": "CORE",
+			"item": [
+				{
+					"name": "send-friend-request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NzIzNjg4LCJpYXQiOjE2OTk3MjAwODgsImp0aSI6ImQ4Mjg0ZmMzY2E5NDQwYjNhNjZlNWRlYjY2MjE3YzFiIiwidXNlcl9pZCI6NDl9.tf0HQy_4XhOfP0Lx0qyc7k2Ivz9Yz33Z7jeTg4bXv6A",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"recipient_id\": 40\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/friend-requests/send_friend_request/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"friend-requests",
+								"send_friend_request",
+								""
+							]
+						},
+						"description": "#### Send Friend Request\n\n- **Method:** POST\n- **Endpoint:** `http://127.0.0.1:8000/friend-requests/send_friend_request/`\n- **Headers:** authentication token is required.\n    \n\n**Response Body:**\n\n``` json\n{\n    \"detail\": \"Friend request already sent.\"\n}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "accept friend request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NzI0MDk4LCJpYXQiOjE2OTk3MjA0OTgsImp0aSI6ImEyMDBmYTAwNGNkMDQzZDlhNjUwYjdhMTk0NTUxYmU2IiwidXNlcl9pZCI6NDB9.ftugAfS_XrxRXZyFzn2Owct6a93b587rEs7tgBWpRGI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/friend-requests/13/accept_friend_request/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"friend-requests",
+								"13",
+								"accept_friend_request",
+								""
+							]
+						},
+						"description": "Accept Friend Request\n\n- **Method:** POST\n- **Endpoint:** /StartFragmentfriend-requests/13/accept_friend_request/\n- **Headers:** authentication is required.\n- **Response Body**\n    \n\n{ \"detail\": \"Friend request already sent.\"}"
+					},
+					"response": []
+				},
+				{
+					"name": "Friends of login user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NzI2NTk3LCJpYXQiOjE2OTk3MjI5OTcsImp0aSI6ImNlM2Y5ZGUwYzM1MzQxODQ4MDRhOTBmNzNmODdkZTAxIiwidXNlcl9pZCI6NDl9.U6ds--9hvmrE-7BMOia1LzYFGN0TpPQ32uhE-JY6aoY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/friends/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"friends",
+								""
+							]
+						},
+						"description": "#### Friedns\n\n- **Method:** GET\n- **Endpoint:**/friends/\n- **Headers:** Bearer Token .\n    \n\n**Response Body:**\n\n``` json\n{\n        \"friends\": [\n            \"behenchod\"\n        ]\n}\n\n ```"
+					},
+					"response": []
+				}
+			],
+			"description": "Core API :\n\n- send friend request\n    \n- accept friend request\n    \n- friends of logged in user"
+		}
+	]
+}
