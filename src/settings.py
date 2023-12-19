@@ -19,6 +19,8 @@ MAX_OTP_ATTEMPTS_PER_DAY=5
 MAX_OTP_TRY = 4
 OTP_EXPIRY_MINUTES = 10
 
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_COOKIE_SECURE = False
 AUTH_USER_MODEL = "userauths.CustomUser"
 
 MIN_PASSWORD_LENGTH = 8
@@ -27,7 +29,7 @@ TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN')
 TWILIO_PHONE_NUMBER = config('TWILIO_PHONE_NUMBER')
 
-
+SITE_ID=1
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,7 +44,7 @@ SECRET_KEY = 'django-insecure-(ubn!97*zid0wmu2%9shlpr)+nc+9w)067@#9^bj@3+6hn+r8c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1',]
 
 
 # Application definition
@@ -54,11 +56,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'userauths',
     'rest_framework',
-
     'rest_framework.authtoken',
+    'drf_yasg',
+
+    'admin_thumbnails',
+    'rest_framework_simplejwt',
     'core',
+
+    #allauth
+    'dj_rest_auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.discord',
+    'social_django',
 
 
 
@@ -72,6 +88,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # Add the account middleware:
+    "allauth.account.middleware.AccountMiddleware",
+
 ]
 
 ROOT_URLCONF = 'src.urls'
@@ -87,6 +107,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
+
             ],
         },
     },
@@ -96,10 +118,14 @@ WSGI_APPLICATION = 'src.wsgi.application'
 CSRF_USE_SESSIONS = False
 REST_FRAMEWORK = {
 
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
 
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Set permissions as needed
+    ],
 
 }
 
@@ -119,10 +145,11 @@ SIMPLE_JWT = {
     "JWK_URL": None,
     "LEEWAY": 0,
 
+
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "id",
-    "USER_ID_CLAIM": "user_id",
+    "USER_ID_FIELD": "phone_number",
+    "USER_ID_CLAIM": "phone_number",
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
 
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
@@ -173,6 +200,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+    'userauths.backends.SocialAuthBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+
+
+]
+ACCOUNT_AUTHENTICATION_METHOD = 'phone_number'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
 
 
 
@@ -191,7 +229,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -201,3 +239,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+
+
+# facebook
+
+LOGIN_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_VERIFICATION ='none'
+SOCIALACCOUNT_QUERY_EMAIL = True
+
+
+SOCIALACCOUNT_ADAPTER = 'userauths.adapters.CustomSocialAccountAdapter'

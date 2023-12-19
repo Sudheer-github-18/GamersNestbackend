@@ -7,6 +7,7 @@ from django.http import JsonResponse
 import phonenumbers
 
 
+
 def normalize_phone_number(phone_number):
     if phone_number.startswith("0"):
         return "+91" + phone_number[1:]  # Replace leading 0 with +91
@@ -16,21 +17,14 @@ def normalize_phone_number(phone_number):
         return None
 
 
+def custom_response(success, data=None, message=None):
+    response_data = {
+        "success": success,
+        "data": data if data is not None else {},
+        "message": message if message else "Operation successful",
+    }
+    return JsonResponse(response_data)
 
-#for distance
-def calculate_distance(request):
-    if request.method == 'POST':
-        latitude1 = float(request.POST.get('latitude1', 0))
-        longitude1 = float(request.POST.get('longitude1', 0))
-        latitude2 = float(request.POST.get('latitude2', 0))
-        longitude2 = float(request.POST.get('longitude2', 0))
 
-        user1_location = (latitude1, longitude1)
-        user2_location = (latitude2, longitude2)
 
-        distance_km = geodesic(user1_location, user2_location).kilometers
-
-        return JsonResponse({"distance_km": distance_km})
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
 

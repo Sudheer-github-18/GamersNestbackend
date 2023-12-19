@@ -1,5 +1,7 @@
 import random
 import secrets
+import uuid
+
 from django.contrib.auth.models import AbstractBaseUser,BaseUserManager,PermissionsMixin
 from django.db import models
 from django.conf import settings
@@ -8,59 +10,65 @@ from django.core.validators import RegexValidator
 from django.db.models.signals import post_save
 from django.utils.text import slugify
 import requests
+from django.contrib.auth.hashers import make_password
 from twilio.rest import Client
 from shortuuid.django_fields import ShortUUIDField
 import shortuuid
 from django.dispatch import receiver
 from django.db import transaction
+from autoslug import AutoSlugField
 
 
 phone_regex = RegexValidator(
     regex=r"^\+91?\d{10}$", message="Phone number must be 10 digits only."
 )
 
-Games=(
-    ("valorant","Valorant"),
-    ("csgo","Csgo"),
-    ("pubg","Pubg")
-)
+
 
 def user_directory_path(instance, filename):
     ext = filename.split(".")[-1]
     filename = "%s.%s" % (instance.user.id, ext)
     return 'user_{0}/{1}'.format(instance.user.id,filename)
 
+
 class UserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None):
+    def create_user(self, phone_number, password=None, **extra_fields):
         if not phone_number:
             raise ValueError("Users must have a phone_number")
-        user = self.model(phone_number=phone_number)
+        if password:
+            extra_fields['password'] = make_password(password)
+
+        user = self.model(phone_number=phone_number, **extra_fields)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone_number, password):
-        user = self.create_user(
-            phone_number=phone_number, password=password
-        )
-        user.is_active = True
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
+    def create_superuser(self, phone_number, password=None, **extra_fields):
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(phone_number, password=password, **extra_fields)
+
+
 
 
 class CustomUser(AbstractBaseUser,PermissionsMixin):
     username=None
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_number = models.CharField(
-        unique=True, max_length=15, null=False, blank=False, validators=[phone_regex]
+        unique=True, max_length=15, null=True, blank=True, validators=[phone_regex]
     )
+    discord_auth_key = models.CharField(max_length=255, blank=True, null=True)
+    social_auth_key = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
     name = models.CharField(max_length=200,null=True,blank=True)
-    dob = models.DateTimeField(max_length=200, null=True, blank=True)
+    dob = models.DateField(max_length=200, null=True, blank=True)
     otp = models.CharField(max_length=6, null=True)
     max_otp_try = models.IntegerField(default=10)
     otp_expiry = models.DateTimeField(blank=True, null=True)
     otp_attempts = models.PositiveSmallIntegerField(default=0)
-    last_otp_attempt = models.DateField(auto_now_add=True, null=True)
+    last_otp_attempt = models.DateTimeField(auto_now_add=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     user_registered_at = models.DateTimeField(default=timezone.now)
@@ -81,8 +89,10 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
                 return False  # Indicates a failed password reset
         return False  # Indicates OTP verification failure
 
-    def __str__(self):
-        return self.phone_number
+    def activate_user_with_social_key(self, *args, **kwargs):
+        if self.social_auth_key or self.discord_auth_key:
+            self.is_active = True
+            self.save()
 
     def send_otp(self, otp):
         account_sid = settings.TWILIO_ACCOUNT_SID
@@ -137,74 +147,98 @@ class CustomUser(AbstractBaseUser,PermissionsMixin):
 
     def activate_user(self):
         self.is_active = True
-        self.otp_expiry = None
+        self.otp_expiry = timezone.now()
         self.otp_attempts = 0
         self.save()
 
     def save(self, *args, **kwargs):
         # Ensure the phone number includes the country code before saving
-        if not self.phone_number.startswith('+'):
+        if self.phone_number and not self.phone_number.startswith('+'):
             # Assuming the country code for India is '+91'
             # Replace '+91' with your country code
             self.phone_number = f'+91{self.phone_number}'
 
-        # Additional processing or validation if needed before saving
+        if not self.id:  # Generate id only if it doesn't exist and name is not None
+            name_to_id = self.name.replace(
+                ' ', '_') if self.name else 'default_name'
+            unique_id = f"{name_to_id}_{uuid.uuid4().hex[:6]}"
+            self.id = unique_id
+
+        if not self.slug:
+            self.slug = f"{str(self.id)}" if self.name else f"user-{str(self.id)}"
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return (self.phone_number)
+        return str(self.phone_number) and str(self.id)
+
+def generate_pid():
+    return shortuuid.ShortUUID().random(length=7)
 
 class UserProfile(models.Model):
-    pid = ShortUUIDField(length=7, max_length=25, alphabet='abcdefghijklmnopqrstuvwxyz')
+    pid = models.CharField(
+        max_length=25,
+        default=generate_pid,
+        unique=True,
+        primary_key=True
+    )
     user = models.OneToOneField(
         CustomUser,
         related_name="profile",
         on_delete=models.CASCADE,
-        primary_key=True,
+        unique=True
     )
+    Games = (
+        ("valorant", "Valorant"),
+        ("csgo", "Csgo"),
+        ("pubg", "Pubg")
+    )
+
+    Gender=(
+        ("male","Male"),
+        ("female","Female"),
+        ("other","Other")
+    )
+
+    gamer_name=models.CharField(max_length=200,unique=True,blank=False)
     games=models.CharField(max_length=100,choices=Games,null=True,blank=True)
     image = models.ImageField(upload_to=user_directory_path, default="default.jpg", null=True,blank=True)
-    full_name = models.CharField(max_length=50, null=False, blank=False)
-
-    phone_number = models.CharField(
-        max_length=15, null=False, blank=False, validators=[phone_regex],default=''
-    )
+    email=models.EmailField(max_length=100,null=True,blank=True)
+    full_name = models.CharField(max_length=50, null=True, blank=True)
+    gender=models.CharField(max_length=200,choices=Gender,default='male')
+    phone_number = models.CharField(max_length=20,blank=True,unique=True)
     friends = models.ManyToManyField(CustomUser, blank=True, related_name="user_friends")
     blocked = models.ManyToManyField(CustomUser, blank=True, related_name="blocked")
     date = models.DateTimeField(default=timezone.now)
     slug=models.SlugField(unique=True, blank=True, null=True)
     state = models.CharField(max_length=50, blank=True, null=True)
     country = models.CharField(max_length=50, blank=True, null=True)
+
+
+    def save(self, *args, **kwargs):
+        if not self.slug or self.slug == "":
+            uuid_key = shortuuid.uuid()
+            unique_id = uuid_key[:2]
+            self.slug = slugify(self.gamer_name) + '-' + str(unique_id.lower())
+        super().save(*args, **kwargs)
+
+
+    @receiver(post_save, sender=CustomUser)
+    def create_profile_on_activation(sender, instance, created, **kwargs):
+        if created and instance.is_active:
+            UserProfile.objects.create(user=instance)
+
     def __str__(self):
-        if self.full_name:
-            return self.full_name
-        elif self.user and hasattr(self.user, 'pid'):
-            return self.user.pid
-        else:
-            return str(self.user)
-
-    def save(self,*args,**kwargs):
-        if self.slug == "" or self.slug == None:
-            uuid_key= shortuuid.uuid()
-            uniqueid = uuid_key[:2]
-            self.slug = slugify(self.full_name) + '-' + str(uniqueid.lower())
-        super(UserProfile,self).save(*args,**kwargs)
-
-
-@receiver(post_save, sender=CustomUser)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created and not settings.DEBUG:
-        with transaction.atomic():
-            if not hasattr(instance, 'profile'):
-                profile = UserProfile.objects.create(
-                    user=instance,
-                    phone_number=instance.phone_number
-                )
-            else:
-                profile = instance.profile
-                profile.phone_number = instance.phone_number
-                profile.save()
+        try:
+            return str(self.gamer_name or self.phone_number or self.pid) or 'Default String'
+        except Exception as e:
+            print(f"Error in __str__ method: {e}")
+            print(f"Instance: {self.__dict__}")
+            print(f"Full Name: {self.full_name}")
+            print(f"Phone Number: {self.phone_number}")
+            print(f"PID: {self.pid}")
+            print(f"User: {self.user}")
+            return f"Error in __str__ method: {e}"
 
 
 
