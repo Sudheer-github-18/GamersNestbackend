@@ -1,4 +1,5 @@
 # GamersNestbackend
-gamersNest Backend Code 
+gamersNest Backend Code
 <br>
-Author-Sudheer Menda
+Author-Sudheer Menda gamers
+
