@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-from decouple import config
+
 import os
 
 MAX_OTP_ATTEMPTS_PER_DAY=5
@@ -25,9 +25,7 @@ AUTH_USER_MODEL = "userauths.CustomUser"
 
 MIN_PASSWORD_LENGTH = 8
 
-TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN')
-TWILIO_PHONE_NUMBER = config('TWILIO_PHONE_NUMBER')
+
 
 SITE_ID=1
 
